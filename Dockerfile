@@ -1,7 +1,13 @@
-# Multi-stage production container build for Google Cloud Run
+# Multi-stage production container build for Google Cloud Run & Render
 FROM node:20-alpine AS builder
 
+# Install OpenSSL required by Prisma engine on Alpine
+RUN apk add --no-cache openssl
+
 WORKDIR /app
+
+# Provide default SQLite DATABASE_URL during container build
+ENV DATABASE_URL="file:./dev.db"
 
 # 1. Copy package definitions
 COPY package*.json ./
@@ -31,10 +37,14 @@ RUN npm prune --omit=dev
 # 7. Production runner stage
 FROM node:20-alpine AS runner
 
+# Install OpenSSL for Prisma runtime on Alpine
+RUN apk add --no-cache openssl
+
 WORKDIR /app
 
 ENV NODE_ENV=production
 ENV PORT=8080
+ENV DATABASE_URL="file:./dev.db"
 
 # Copy production node_modules from builder
 COPY --from=builder /app/node_modules ./node_modules
