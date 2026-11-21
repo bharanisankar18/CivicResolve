@@ -25,7 +25,10 @@ WORKDIR /app
 # 5. Build all workspaces (shared -> api -> web)
 RUN npm run build
 
-# 6. Production runner stage
+# 6. Prune devDependencies to keep container lean
+RUN npm prune --omit=dev
+
+# 7. Production runner stage
 FROM node:20-alpine AS runner
 
 WORKDIR /app
@@ -33,17 +36,11 @@ WORKDIR /app
 ENV NODE_ENV=production
 ENV PORT=8080
 
+# Copy production node_modules from builder
+COPY --from=builder /app/node_modules ./node_modules
 COPY package*.json ./
 COPY packages/shared/package*.json ./packages/shared/
 COPY apps/api/package*.json ./apps/api/
-
-RUN npm ci --omit=dev
-
-# Generate Prisma client in runner stage
-WORKDIR /app/apps/api
-COPY apps/api/prisma ./prisma
-RUN npx prisma generate
-WORKDIR /app
 
 # Copy compiled bundles and seeded database
 COPY --from=builder /app/packages/shared/dist ./packages/shared/dist
