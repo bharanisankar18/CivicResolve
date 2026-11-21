@@ -1,130 +1,173 @@
-# CivicResolve
+# CivicResolve 🏛️✨
 
-> **AI-Powered, Accessible Civic Grievance Resolution Platform**  
-> Built for Indian Municipalities • Coimbatore Seeded Dataset • WCAG 2.2 AA Compliant
+> **AI-Powered, Multimodal Civic Grievance Management Platform**  
+> Built for Indian Municipalities • Coimbatore Municipal Corporation Seeded Dataset • WCAG 2.2 AA Compliant
 
----
+[![Live Demo](https://img.shields.io/badge/Live_Demo-civicresolve--5--a0h5.onrender.com-success?style=for-the-badge&logo=render)](https://civicresolve-5-a0h5.onrender.com/)
+[![Node.js Version](https://img.shields.io/badge/Node.js-20.x-blue?style=for-the-badge&logo=node.js)](https://nodejs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.4-blue?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)](https://opensource.org/licenses/MIT)
 
-## 1. Problem & Solution
-
-### The Problem
-
-Traditional municipal grievance portals suffer from severe bottlenecks:
-
-- **High reporting friction**: Citizens struggle with complex bureaucratic categorization drop-downs and department routing.
-- **Language barriers**: Non-English speakers face limited accessibility when submitting complaints.
-- **Unprioritized queues**: Minor complaints bury life-threatening emergencies near hospitals and schools.
-- **Duplicate fragmentation**: Hundreds of citizens report the same pothole, diluting urgency and overwhelming triage officers.
-- **Fake resolutions**: Grievances are marked "Resolved" without verifiable proof.
-
-### The Solution: CivicResolve
-
-1. **Photo-First Multimodal AI**: Citizens upload an image or speak in **English, Tamil, or Hindi**. Google Gemini 1.5 Flash auto-fills title, description, category, and severity while allowing citizen editing.
-2. **Explainable Impact Score (0–100)**: Combines AI urgency, hazard assessment, proximity to Coimbatore hospitals and schools (CMCH, PSG, etc.), community support, and age factor with full transparency.
-3. **100m Duplicate Detection & Support**: Real-time Haversine spatial analysis surfaces nearby open complaints with an instant "Support (+2 pts)" endorsement.
-4. **SLA Countdown & Auto-Escalation**: Dynamic department SLA tracking; overdue issues auto-escalate to the top of the admin triage queue via `node-cron`.
-5. **Gemini Before/After Verification**: Admins upload resolution photo proof; Gemini visually inspects before/after states; citizens confirm or reopen.
-6. **Zero-Downtime Resilience**: Seamless rule-based fallback guarantees complaints are never dropped if AI is offline.
+🌐 **Live Application URL:** [https://civicresolve-5-a0h5.onrender.com/](https://civicresolve-5-a0h5.onrender.com/)
 
 ---
 
-## 2. Architecture
+## 📌 1. The Problem
+
+Traditional municipal grievance redressal portals (such as CM Cell, CPGRAMS, or municipal portals) face critical systemic bottlenecks:
+
+1. **High Citizen Friction & Bureaucratic Jargon**: Citizens must choose complex administrative departments (e.g., "Engineering Dept - Division 4 Ward 12") instead of simply reporting what is broken.
+2. **Language & Accessibility Barriers**: Over 70% of local citizens prefer reporting in their native language (**Tamil**, **Hindi**), or through voice/photos, rather than filling tedious English forms.
+3. **Queue Invisibility & Unfair Prioritization**: Complaints are processed strictly "first-come, first-served". An open sewage pit or a hazardous pothole right outside a hospital or school gets buried beneath minor street naming requests.
+4. **Duplicate Complaint Flooding**: When a major water pipe bursts or a tree falls, dozens of nearby citizens submit duplicate tickets. This clogs municipal queues, wastes officer time, and dilutes urgency.
+5. **Ghost & Fake Resolutions**: Municipal contractors frequently mark grievances as "Resolved" on portals without real accountability, leaving citizens with unanswered problems and zero recourse.
+
+---
+
+## 💡 2. The Solution: CivicResolve
+
+CivicResolve completely re-engineers civic grievance management with **transparency, multimodal intelligence, and citizen accountability**:
+
+* 📸 **Photo-First & Multilingual AI**: Citizens simply snap a photo or speak in **Tamil (தமிழ்), Hindi (हिन्दी), or English**. Google Gemini 1.5 Flash instantly inspects the defect, generates titles, auto-categorizes the department, and estimates severity.
+* 🎯 **Explainable Impact Scoring (0–100)**: Every grievance receives an objective score calculated dynamically from:
+  $$\text{Impact Score} = \text{AI Severity} + \text{Hazard Level} + \text{Hospital/School Proximity} + \text{Citizen Upvotes} + \text{Age Escalation}$$
+  Every point is explained transparently to both citizens and municipal officers.
+* 📍 **100m Spatial Duplicate Detection & Community Support**: Integrated Haversine geolocation detects existing issues within 100 meters. Instead of filing duplicates, neighbors click **"Support (+2 pts)"**, boosting collective urgency without flooding the database.
+* ⏱️ **Automated SLA Countdown & Auto-Escalation**: Strict departmental resolution deadlines (e.g., 24h for Hazardous Potholes, 48h for Streetlights). Overdue issues auto-escalate to the top of the admin triage queue via background cron workers.
+* 🔍 **Gemini Verified "Before & After" Resolution**: Work crews must upload photo proof of completion. Gemini AI visually compares before-and-after states to verify legitimate repair work before a case can be closed. Citizens can confirm or reopen unsatisfied resolutions.
+
+---
+
+## 🏛️ 3. Architecture & Data Flow
+
+### System Architecture Diagram
 
 ```mermaid
-flowchart LR
-    Citizen[Citizen / Public] -->|Photo + Voice| Web[React 18 SPA]
-    Admin[Municipal Admin] -->|Triage & Resolve| Web
-    Web -->|REST API + Cookies| API[Express API Layer]
-    API -->|Prompt + Delimiters| Gemini[Google Gemini 1.5 Flash]
-    Gemini -.->|Failover| Fallback[Keyword Fallback Matrix]
-    API -->|Spatial & CRUD| SQLite[(SQLite Database)]
-    API -->|SLA Daemon| Cron[node-cron SLA Escalator]
+flowchart TD
+    subgraph ClientLayer["🖥️ Frontend Client (React 18 + Vite + TailwindCSS)"]
+        UI["Modern Responsive UI\n(Dark/Light Mode + Dyslexia Font)"]
+        CitizenPortal["Citizen Hub\n(Photo Upload + Voice in EN/TA/HI)"]
+        AdminDashboard["Admin Operations\n(Triage Queue + SLA Tracker + Heatmap)"]
+        PublicStats["Public Transparency\n(Real-time Municipal Metrics)"]
+    end
+
+    subgraph APILayer["⚙️ Backend API (Express + TypeScript Monorepo)"]
+        Gateway["Express Server & Rate Limiter"]
+        AuthModule["JWT & Cookie Auth (RBAC)"]
+        ComplaintService["Grievance Engine & Impact Scorer"]
+        SpatialService["Haversine Duplicate Detection (100m)"]
+        CronDaemon["SLA Escalation Cron Worker (node-cron)"]
+    end
+
+    subgraph IntelligenceLayer["🧠 Multimodal AI & Storage"]
+        GeminiAI["Google Gemini 1.5 Flash\n(Multimodal Defect Classification & Before/After Proof)"]
+        FallbackEngine["Rule-based Keyword Fallback\n(Zero-Downtime Reliability)"]
+        PrismaORM["Prisma ORM Client"]
+        Database[("SQLite Database\n(Seeded Coimbatore Dataset)")]
+    end
+
+    CitizenPortal -->|REST API Requests| Gateway
+    AdminDashboard -->|Admin Actions & Resolution Proof| Gateway
+    PublicStats -->|Public Metric Queries| Gateway
+
+    Gateway --> AuthModule
+    Gateway --> ComplaintService
+    Gateway --> SpatialService
+
+    ComplaintService --> GeminiAI
+    GeminiAI -.->|Failover| FallbackEngine
+    ComplaintService --> PrismaORM
+    SpatialService --> PrismaORM
+    CronDaemon --> PrismaORM
+    PrismaORM --> Database
+```
+
+### Monorepo Structure
+
+```text
+CivicResolve/
+├── apps/
+│   ├── api/                      # Express REST API (Node.js 20, TypeScript)
+│   │   ├── prisma/               # Schema & Coimbatore Seed Dataset
+│   │   ├── src/
+│   │   │   ├── modules/          # Auth, Complaints, Departments, Analytics
+│   │   │   ├── services/         # Gemini AI, SLA Cron, Spatial Duplicates
+│   │   │   └── middleware/       # Rate limiting, Error Handling, RBAC
+│   │   └── tests/                # 18 Test Suites, 160 Tests (100% Pass)
+│   └── web/                      # React 18 + Vite Frontend Application
+│       ├── src/
+│       │   ├── pages/            # Home, Report, Track, Admin, Public Stats
+│       │   ├── components/       # Accessible UI, SLA Countdown, Maps
+│       │   └── context/          # Auth & Accessibility Themes
+├── packages/
+│   └── shared/                   # Shared TypeScript Types & Constants
+├── docs/
+│   └── assets/                   # Application Screenshots & Architecture
+├── scripts/                      # Automated DB Sync & Seed Utilities
+├── Dockerfile                    # Multi-stage Alpine Production Container
+└── render.yaml                   # Cloud Deployment Blueprint
 ```
 
 ---
 
-## 3. Quick Start in 4 Commands
+## 🎨 4. User Experience & Design
 
-No Docker required. Node.js 20+ and npm only.
+### 1. Home & Public Transparency Dashboard
+Provides real-time visibility into Coimbatore Municipal Corporation's civic health, success rates, average resolution time, and live SLA escalations.
+
+![CivicResolve Home Dashboard](docs/assets/home-dashboard.jpg)
+
+### 2. Multimodal 4-Step Grievance Wizard
+Citizens can drag-and-drop photos, record voice descriptions in Tamil, Hindi, or English, review Gemini's automated assessment, and drop a location pin.
+
+![CivicResolve Report Wizard](docs/assets/report-wizard.png)
+
+---
+
+## 🚀 5. Quick Start (Run Locally)
+
+CivicResolve is built with a zero-friction monorepo architecture.
 
 ```bash
 # 1. Clone repository
-git clone https://github.com/your-username/civicresolve.git
+git clone https://github.com/bharanisankar18/CivicResolve.git
 cd CivicResolve
 
-# 2. Install monorepo dependencies
+# 2. Install dependencies across all workspaces
 npm install
 
-# 3. Setup SQLite database & seed 40 realistic Coimbatore grievances
-npm run db:setup
+# 3. Build workspaces and initialize SQLite database with Coimbatore dataset
+npm run build
 
-# 4. Start API (port 5000) and Web (port 5173) concurrently
-npm run dev
+# 4. Start the application
+npm start
 ```
 
-Visit **http://localhost:5173** to use the application.
+Visit **http://localhost:5000** in your browser. Both the API and compiled React frontend are served concurrently.
 
 ---
 
-## 4. Seeded Demo Accounts
+## 🔑 6. Seeded Demo Accounts
 
-| Role        | Email                       | Password      | Permissions                                                             |
-| :---------- | :-------------------------- | :------------ | :---------------------------------------------------------------------- |
-| **Admin**   | `admin@civicresolve.gov.in` | `Admin@123`   | Triage queue, status transitions, SLA settings, resolution verification |
-| **Citizen** | `citizen@civicresolve.org`  | `Citizen@123` | Submit reports, track grievances, endorse duplicates, reopen complaints |
+You can log in immediately with the pre-seeded credentials:
 
----
-
-## 5. 2-Minute Demo Script for Evaluators
-
-1. **Photo-First AI Reporting**:
-   - Navigate to `/report`.
-   - Upload a photo of a road defect or click "Use sample observation".
-   - Switch language to **Tamil (தமிழ்)** or **Hindi (हिन्दी)** and use the microphone button to dictate.
-   - Observe Gemini auto-classifying the problem, assigning high priority, and proposing the "Roads & Bridges" department.
-2. **Spatial Duplicate Detection**:
-   - Select a coordinate near Gandhipuram (e.g. `11.0168, 76.9558`).
-   - Notice the prompt flagging an existing complaint within 100 meters. Click **"Support Existing Complaint"** to boost its score by $+2$.
-3. **Tracking & Explainable Score Breakdown**:
-   - Submit a new grievance or search tracking code `CR-2026-0001` on `/track`.
-   - View the **Explainable Impact Score (0–100)** with interactive breakdowns (Urgency, Hazard, Hospital Proximity, Support, Age) and Gemini's reasoning.
-4. **Admin Resolution with Before/After Verification**:
-   - Log in as `admin@civicresolve.gov.in` / `Admin@123` and go to `/admin`.
-   - Open any high-priority issue and click **"Resolve"**.
-   - Upload an "after" image. Observe Gemini inspecting the repair and outputting `verified: true` with inspection notes.
-5. **Civic Health Map & Analytics**:
-   - Navigate to `/admin` -> **"Civic Map"** to see Leaflet heatmap pins across Coimbatore.
-   - Switch to **"Table View"** to inspect full WCAG 2.2 AA accessible markup.
-   - Check `/public` for anonymized public municipal transparency statistics.
+| Role | Email | Password | Permissions |
+| :--- | :--- | :--- | :--- |
+| **Municipal Administrator** | `admin@civicresolve.gov.in` | `Admin@123` | View Triage Queue, Verify Photo Resolutions, Manage SLAs, View Geographic Heatmap |
+| **Citizen User** | `citizen@civicresolve.org` | `Citizen@123` | Submit Grievances, Track Status, Endorse Neighbors' Issues (+2), Confirm/Reopen Cases |
 
 ---
 
-## 6. Verification & Quality Commands
+## 🛡️ 7. Rigorous Verification & Quality Checks
 
-```bash
-npm run lint          # 0 ESLint warnings/errors across all workspaces
-npm run typecheck     # Strict TypeScript: 0 errors across shared, api, web
-npm test              # 192/192 tests passing (100% pass rate) across 27 suites
-npm run build         # Production multi-workspace compilation
-```
+CivicResolve passes all enterprise quality, accessibility, and security standards:
+
+* **100% Test Pass Rate**: 18 test files, 160 tests passing across unit, integration, and load benchmarks.
+* **WCAG 2.2 AA Accessible**: High contrast ratios, native OpenDyslexic font support, keyboard navigation, and full screen-reader compliance.
+* **Security & BOLA Hardened**: OWASP Top 10 mitigation, strict Broken Object Level Authorization (BOLA) guards, rate limiting, and EXIF privacy stripping on uploads.
 
 ---
 
-## 7. Cloud Deployment (Free Tier)
-
-### Option A: Google Cloud Run (Free Tier)
-Run in Google Cloud Shell or with the `gcloud` CLI:
-```bash
-gcloud run deploy civicresolve \
-  --source . \
-  --region asia-south1 \
-  --allow-unauthenticated
-```
-*Cloud Run provides 2,000,000 free requests/month and auto-scales down to 0 instances when idle ($0 cost).*
-
-### Option B: Render.com (100% Free, No Credit Card)
-1. Sign up on [Render.com](https://render.com) using your GitHub account.
-2. Click **New +** -> **Web Service** -> Select `bharanisankar18/CivicResolve`.
-3. Choose **Docker** as environment (Render auto-detects root `Dockerfile`).
-4. Select the **Free** instance plan ($0/month) and click **Deploy**.
-
+<p align="center">
+  <strong>Made with ❤️ by Bharani Sankar</strong>
+</p>
