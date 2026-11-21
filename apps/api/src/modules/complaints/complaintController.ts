@@ -76,6 +76,10 @@ export class ComplaintController {
         }
       }
 
+      // Sanitize and clamp pagination boundaries to prevent DoS / unbounded queries
+      const safePage = Math.max(1, parseInt(String(page || "1"), 10) || 1);
+      const safeLimit = Math.min(100, Math.max(1, parseInt(String(limit || "20"), 10) || 20));
+
       const complaints = await complaintService.list({
         status: status as ComplaintStatus,
         category: category as ComplaintCategory,
@@ -83,9 +87,9 @@ export class ComplaintController {
         isEscalated: isEscalated !== undefined ? isEscalated === "true" : undefined,
         departmentId: departmentId as string,
         citizenId: citizenId as string,
-        search: search as string,
-        page: page ? Number(page) : 1,
-        limit: limit ? Number(limit) : 20,
+        search: typeof search === "string" ? search.trim().slice(0, 100) : undefined,
+        page: safePage,
+        limit: safeLimit,
       });
 
       res.status(200).json({
@@ -101,10 +105,23 @@ export class ComplaintController {
     try {
       const { lat, lng, radiusMeters, category } = req.query;
 
+      const numLat = Number(lat);
+      const numLng = Number(lng);
+
+      if (isNaN(numLat) || isNaN(numLng)) {
+        res.status(400).json({
+          success: false,
+          error: "Valid latitude (lat) and longitude (lng) query parameters are required",
+        });
+        return;
+      }
+
+      const safeRadius = Math.min(5000, Math.max(10, radiusMeters ? Number(radiusMeters) : 100));
+
       const duplicates = await findNearbyDuplicates({
-        lat: Number(lat),
-        lng: Number(lng),
-        radiusMeters: radiusMeters ? Number(radiusMeters) : 100,
+        lat: numLat,
+        lng: numLng,
+        radiusMeters: isNaN(safeRadius) ? 100 : safeRadius,
         category: category as ComplaintCategory,
       });
 
