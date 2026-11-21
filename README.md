@@ -102,9 +102,29 @@ Visit **http://localhost:5173** to use the application.
 ## 6. Verification & Quality Commands
 
 ```bash
-npm run lint          # 0 ESLint warnings/errors
-npm run typecheck     # Strict TypeScript: 0 errors
-npm test              # 57/57 tests passing across monorepo
-npm run test:coverage # >80% coverage on API logic
-npm run build         # Production builds for shared, api, and web
+npm run lint          # 0 ESLint warnings/errors across all workspaces
+npm run typecheck     # Strict TypeScript: 0 errors across shared, api, web
+npm test              # 192/192 tests passing (100% pass rate) across 27 suites
+npm run build         # Production multi-workspace compilation
 ```
+
+---
+
+## 7. Cloud Deployment (Free Tier)
+
+### Option A: Google Cloud Run (Free Tier)
+Run in Google Cloud Shell or with the `gcloud` CLI:
+```bash
+gcloud run deploy civicresolve \
+  --source . \
+  --region asia-south1 \
+  --allow-unauthenticated
+```
+*Cloud Run provides 2,000,000 free requests/month and auto-scales down to 0 instances when idle ($0 cost).*
+
+### Option B: Render.com (100% Free, No Credit Card)
+1. Sign up on [Render.com](https://render.com) using your GitHub account.
+2. Click **New +** -> **Web Service** -> Select `bharanisankar18/CivicResolve`.
+3. Choose **Docker** as environment (Render auto-detects root `Dockerfile`).
+4. Select the **Free** instance plan ($0/month) and click **Deploy**.
+

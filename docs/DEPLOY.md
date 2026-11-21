@@ -51,53 +51,38 @@ firebase deploy --only hosting
 
 ---
 
-## 3. Deploying API to Google Cloud Run
+## 3. Deploying Unified Fullstack to Google Cloud Run (Free Tier)
 
-Google Cloud Run provides auto-scaling, containerized execution with automatic HTTPS and custom domains.
+Google Cloud Run provides auto-scaling, containerized execution with automatic HTTPS, custom domains, and a **2,000,000 free requests/month** always-free tier.
 
-### Step 1: Set Google Cloud Project
+### Single-Command Deployment (Cloud Shell or Local CLI)
 
-```bash
-gcloud config set project YOUR_PROJECT_ID
-gcloud auth configure-docker
-```
-
-### Step 2: Build Container
-
-From the root workspace, create a `Dockerfile`:
-
-```dockerfile
-FROM node:20-alpine AS builder
-WORKDIR /app
-COPY package*.json ./
-COPY packages/ ./packages/
-COPY apps/api/ ./apps/api/
-RUN npm install
-RUN npm --workspace=@civicresolve/shared run build
-RUN npm --workspace=@civicresolve/api run build
-
-FROM node:20-alpine AS runner
-WORKDIR /app
-ENV NODE_ENV=production
-COPY --from=builder /app ./
-EXPOSE 5000
-CMD ["node", "apps/api/dist/server.js"]
-```
-
-### Step 3: Deploy to Cloud Run
+From the project root:
 
 ```bash
-gcloud run deploy civicresolve-api \
+gcloud run deploy civicresolve \
   --source . \
-  --platform managed \
   --region asia-south1 \
   --allow-unauthenticated \
-  --set-env-vars NODE_ENV=production,PORT=5000,GEMINI_API_KEY=YOUR_GEMINI_API_KEY,JWT_SECRET=YOUR_PRODUCTION_SECRET
+  --set-env-vars NODE_ENV=production,PORT=8080
 ```
+
+Cloud Run will automatically build the multi-stage `Dockerfile`, push and seed the database, and assign you a live HTTPS URL (e.g. `https://civicresolve-xxxxxx.a.run.app`).
 
 ---
 
-## 4. Production Environment Variables Checklist
+## 4. Deploying to Render.com (100% Free, No Credit Card)
+
+1. Sign up on [Render.com](https://render.com) using your GitHub account.
+2. Click **New +** -> **Web Service**.
+3. Select your repository: `bharanisankar18/CivicResolve`.
+4. Choose **Docker** as environment (Render auto-detects root `Dockerfile`).
+5. Select the **Free** instance plan ($0/month) and click **Deploy Web Service**.
+6. Render will build and deploy the entire fullstack app with a live domain: `https://civicresolve.onrender.com`.
+
+---
+
+## 5. Production Environment Variables Checklist
 
 | Variable         | Description                       | Example                        |
 | :--------------- | :-------------------------------- | :----------------------------- |
