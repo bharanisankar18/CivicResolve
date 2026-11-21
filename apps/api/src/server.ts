@@ -5,7 +5,7 @@ import { startSlaEscalationJob } from "./jobs/slaEscalationCron";
 
 const app = createApp();
 
-const server = app.listen(env.PORT, () => {
+const server = app.listen(env.PORT, "0.0.0.0", () => {
   logger.info(`🚀 CivicResolve API running on http://localhost:${env.PORT}`);
   logger.info(`Environment: ${env.NODE_ENV} | Gemini Model: ${env.GEMINI_MODEL}`);
 

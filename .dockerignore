@@ -1,0 +1,8 @@
+node_modules
+.git
+.github
+*.log
+coverage
+.cache
+test-results
+dist

@@ -58,7 +58,20 @@ export function createApp(): Express {
   app.use("/api/v1/departments", departmentRoutes);
   app.use("/api/v1/analytics", analyticsRoutes);
 
-  // 8. Central Error Handling Middleware
+  // 8. Serve Web Frontend in production if built
+  const clientDist = path.resolve(__dirname, "../../web/dist");
+  app.use(express.static(clientDist));
+  app.get("*", (req, res, next) => {
+    if (req.path.startsWith("/api") || req.path.startsWith("/uploads")) {
+      return next();
+    }
+    const indexPath = path.join(clientDist, "index.html");
+    res.sendFile(indexPath, (err) => {
+      if (err) next();
+    });
+  });
+
+  // 9. Central Error Handling Middleware
   app.use(errorHandler);
 
   return app;
