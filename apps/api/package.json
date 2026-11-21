@@ -11,10 +11,10 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run --passWithNoTests",
     "test:coverage": "vitest run --coverage --passWithNoTests",
-    "db:setup": "prisma migrate dev --name init && prisma generate",
-    "db:push": "prisma db push",
+    "db:setup": "prisma db push && prisma generate",
+    "db:push": "node -e \"const {execSync}=require('child_process'); execSync('npx prisma db push --skip-generate', {stdio:'inherit', env: {...process.env, DATABASE_URL: process.env.DATABASE_URL || 'file:./dev.db'}});\"",
     "db:generate": "prisma generate",
-    "db:seed": "tsx prisma/seed.ts",
+    "db:seed": "node -e \"const {execSync}=require('child_process'); execSync('npx tsx prisma/seed.ts', {stdio:'inherit', env: {...process.env, DATABASE_URL: process.env.DATABASE_URL || 'file:./dev.db'}});\"",
     "db:studio": "prisma studio"
   },
   "dependencies": {

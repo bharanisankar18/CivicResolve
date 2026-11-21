@@ -5,6 +5,7 @@ build/
 coverage/
 *.log
 .env
+!apps/api/.env
 .env.local
 .env.*.local
 *.sqlite
