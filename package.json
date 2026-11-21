@@ -12,7 +12,7 @@
     "dev:api": "npm --workspace=@civicresolve/api run dev",
     "dev:web": "npm --workspace=@civicresolve/web run dev",
     "build": "npm --workspace=@civicresolve/shared run build && npm --workspace=@civicresolve/api run build && npm --workspace=@civicresolve/web run build",
-    "render:build": "npm --workspace=@civicresolve/api run db:generate && npm run build && npm --workspace=@civicresolve/api run db:push && npm run db:seed",
+    "render:build": "node -e \"const fs=require('fs'); if(!fs.existsSync('apps/api/.env')&&fs.existsSync('apps/api/.env.example')){fs.copyFileSync('apps/api/.env.example','apps/api/.env'); console.log('Created default apps/api/.env');}\" && npm --workspace=@civicresolve/api run db:generate && npm run build && npm --workspace=@civicresolve/api run db:push && npm run db:seed",
     "start": "npm --workspace=@civicresolve/api run start",
     "lint": "npm run lint:all",
     "lint:all": "npm --workspace=@civicresolve/shared run lint && npm --workspace=@civicresolve/api run lint && npm --workspace=@civicresolve/web run lint",
