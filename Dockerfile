@@ -15,15 +15,17 @@ RUN npm ci
 # 3. Copy source code
 COPY . .
 
-# 4. Build all workspaces and initialize SQLite seed database
-RUN npm run build
+# 4. Generate Prisma client & setup database FIRST
 WORKDIR /app/apps/api
 RUN npx prisma generate
 RUN npx prisma db push
 RUN npx tsx prisma/seed.ts
 WORKDIR /app
 
-# 5. Production runner stage
+# 5. Build all workspaces (shared -> api -> web)
+RUN npm run build
+
+# 6. Production runner stage
 FROM node:20-alpine AS runner
 
 WORKDIR /app
@@ -36,6 +38,12 @@ COPY packages/shared/package*.json ./packages/shared/
 COPY apps/api/package*.json ./apps/api/
 
 RUN npm ci --omit=dev
+
+# Generate Prisma client in runner stage
+WORKDIR /app/apps/api
+COPY apps/api/prisma ./prisma
+RUN npx prisma generate
+WORKDIR /app
 
 # Copy compiled bundles and seeded database
 COPY --from=builder /app/packages/shared/dist ./packages/shared/dist

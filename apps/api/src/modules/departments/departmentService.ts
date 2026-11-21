@@ -23,14 +23,23 @@ export class DepartmentService {
     }
 
     const departments = await departmentRepository.findAll();
-    const data: DepartmentDto[] = departments.map((d) => ({
-      id: d.id,
-      code: d.code,
-      name: d.name,
-      slaHours: d.slaHours,
-      description: d.description,
-      complaintCount: d._count.complaints,
-    }));
+    const data: DepartmentDto[] = departments.map(
+      (d: {
+        id: string;
+        code: string;
+        name: string;
+        slaHours: number;
+        description: string | null;
+        _count: { complaints: number };
+      }) => ({
+        id: d.id,
+        code: d.code,
+        name: d.name,
+        slaHours: d.slaHours,
+        description: d.description,
+        complaintCount: d._count.complaints,
+      }),
+    );
 
     cachedDepartments = { data, timestamp: now };
     return data;

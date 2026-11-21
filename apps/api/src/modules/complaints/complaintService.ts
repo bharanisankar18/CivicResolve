@@ -137,7 +137,7 @@ export class ComplaintService {
     const result = await complaintRepository.list(options);
     return {
       ...result,
-      items: result.items.map((item) => this.mapToDto(item)),
+      items: result.items.map((item: Record<string, unknown>) => this.mapToDto(item)),
     };
   }
 

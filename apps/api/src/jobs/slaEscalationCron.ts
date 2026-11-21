@@ -32,7 +32,7 @@ export async function checkAndEscalateOverdueComplaints(): Promise<number> {
     `Detected ${breachedComplaints.length} complaints breaching SLA. Elevating...`,
   );
 
-  const ids = breachedComplaints.map((c) => c.id);
+  const ids = breachedComplaints.map((c: { id: string }) => c.id);
   await prisma.$transaction([
     prisma.complaint.updateMany({
       where: { id: { in: ids } },
@@ -42,7 +42,7 @@ export async function checkAndEscalateOverdueComplaints(): Promise<number> {
       },
     }),
     prisma.statusEvent.createMany({
-      data: ids.map((id) => ({
+      data: ids.map((id: string) => ({
         complaintId: id,
         status: "ESCALATED",
         remarks: "Automated SLA Escalation: Grievance breached resolution deadline.",

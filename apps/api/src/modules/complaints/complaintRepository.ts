@@ -1,4 +1,5 @@
 import { prisma } from "../../config/prisma";
+import { Prisma } from "@prisma/client";
 import {
   ComplaintCategory,
   ComplaintPriority,
@@ -237,7 +238,7 @@ export class ComplaintRepository {
   }
 
   async addSupport(complaintId: string, userId: string) {
-    return prisma.$transaction(async (tx) => {
+    return prisma.$transaction(async (tx: Prisma.TransactionClient) => {
       await tx.complaintSupport.create({
         data: {
           complaintId,
@@ -294,7 +295,7 @@ export class ComplaintRepository {
     remarks?: string;
     updatedById?: string;
   }) {
-    return prisma.$transaction(async (tx) => {
+    return prisma.$transaction(async (tx: Prisma.TransactionClient) => {
       const isEscalated = params.status === "ESCALATED";
 
       const complaint = await tx.complaint.update({
@@ -325,7 +326,7 @@ export class ComplaintRepository {
     remarks?: string;
     adminId: string;
   }) {
-    return prisma.$transaction(async (tx) => {
+    return prisma.$transaction(async (tx: Prisma.TransactionClient) => {
       const complaint = await tx.complaint.update({
         where: { id: params.id },
         data: {
@@ -371,7 +372,7 @@ export class ComplaintRepository {
   }
 
   async reopenComplaint(complaintId: string, remarks?: string, citizenId?: string | null) {
-    return prisma.$transaction(async (tx) => {
+    return prisma.$transaction(async (tx: Prisma.TransactionClient) => {
       const complaint = await tx.complaint.update({
         where: { id: complaintId },
         data: {
@@ -396,7 +397,7 @@ export class ComplaintRepository {
   async markBreachedAsEscalated(complaintIds: string[]) {
     if (complaintIds.length === 0) return 0;
 
-    return prisma.$transaction(async (tx) => {
+    return prisma.$transaction(async (tx: Prisma.TransactionClient) => {
       const updateResult = await tx.complaint.updateMany({
         where: {
           id: { in: complaintIds },
