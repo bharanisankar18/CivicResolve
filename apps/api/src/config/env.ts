@@ -1,14 +1,28 @@
 import dotenv from "dotenv";
 import path from "path";
+import fs from "fs";
 import { z } from "zod";
 
 dotenv.config({ path: path.resolve(__dirname, "../../.env") });
 dotenv.config({ path: path.resolve(__dirname, "../.env") });
 dotenv.config();
 
+// Resolve sqlite database location across build/monorepo structures
+const possibleDbPaths = [
+  path.resolve(__dirname, "../../prisma/dev.db"),
+  path.resolve(__dirname, "../prisma/dev.db"),
+  path.resolve(process.cwd(), "apps/api/prisma/dev.db"),
+  path.resolve(process.cwd(), "prisma/dev.db"),
+  path.resolve(process.cwd(), "dev.db"),
+];
+const foundDb = possibleDbPaths.find((p) => fs.existsSync(p));
+
 if (!process.env.DATABASE_URL) {
-  process.env.DATABASE_URL = "file:./dev.db";
+  process.env.DATABASE_URL = foundDb ? `file:${foundDb}` : "file:./dev.db";
+} else if (process.env.DATABASE_URL === "file:./dev.db" && foundDb) {
+  process.env.DATABASE_URL = `file:${foundDb}`;
 }
+
 if (!process.env.JWT_SECRET) {
   process.env.JWT_SECRET = "civicresolve-super-secret-jwt-key-2026";
 }
