@@ -12,6 +12,7 @@
     "dev:api": "npm --workspace=@civicresolve/api run dev",
     "dev:web": "npm --workspace=@civicresolve/web run dev",
     "build": "npm --workspace=@civicresolve/shared run build && npm --workspace=@civicresolve/api run build && npm --workspace=@civicresolve/web run build",
+    "render:build": "npm --workspace=@civicresolve/api run db:generate && npm run build && npm --workspace=@civicresolve/api run db:push && npm run db:seed",
     "start": "npm --workspace=@civicresolve/api run start",
     "lint": "npm run lint:all",
     "lint:all": "npm --workspace=@civicresolve/shared run lint && npm --workspace=@civicresolve/api run lint && npm --workspace=@civicresolve/web run lint",

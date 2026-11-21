@@ -21,15 +21,19 @@ RUN npm ci
 # 3. Copy source code
 COPY . .
 
-# 4. Generate Prisma client & setup database FIRST
+# 4. Generate Prisma client
 WORKDIR /app/apps/api
 RUN npx prisma generate
-RUN npx prisma db push
-RUN npx tsx prisma/seed.ts
 WORKDIR /app
 
 # 5. Build all workspaces (shared -> api -> web)
 RUN npm run build
+
+# 6. Push database schema & Seed default data (shared is now built)
+WORKDIR /app/apps/api
+RUN npx prisma db push
+RUN npx tsx prisma/seed.ts
+WORKDIR /app
 
 # 6. Prune devDependencies to keep container lean
 RUN npm prune --omit=dev

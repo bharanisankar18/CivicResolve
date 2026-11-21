@@ -3,6 +3,7 @@ import cors from "cors";
 import helmet from "helmet";
 import cookieParser from "cookie-parser";
 import path from "path";
+import fs from "fs";
 import { env } from "./config/env";
 import { errorHandler } from "./middleware/errorHandler";
 import { standardRateLimiter } from "./middleware/rateLimiter";
@@ -59,7 +60,13 @@ export function createApp(): Express {
   app.use("/api/v1/analytics", analyticsRoutes);
 
   // 8. Serve Web Frontend in production if built
-  const clientDist = path.resolve(__dirname, "../../web/dist");
+  const clientDistCandidates = [
+    path.resolve(__dirname, "../../web/dist"),
+    path.resolve(process.cwd(), "apps/web/dist"),
+    path.resolve(__dirname, "../web/dist"),
+    path.resolve(process.cwd(), "web/dist"),
+  ];
+  const clientDist = clientDistCandidates.find((dir) => fs.existsSync(dir)) || path.resolve(__dirname, "../../web/dist");
   app.use(express.static(clientDist));
   app.get("*", (req, res, next) => {
     if (req.path.startsWith("/api") || req.path.startsWith("/uploads")) {
